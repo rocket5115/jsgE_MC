@@ -1,0 +1,12 @@
+html>* {
+    margin: 0px;
+    overflow: hidden;
+}
+
+container>* {
+    background-color: black;
+}
+
+container>container>div:last-child {
+    background-color: red;
+}
