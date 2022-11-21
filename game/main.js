@@ -1,11 +1,12 @@
-var scene = new SceneCreator(Math.floor(1920/64)*64, Math.floor(1080/64)*64, 64);
+var scene = new SceneCreator((Math.floor(1920/64)*64), (Math.floor(1080/64)*64), 64);
 let background = scene.CreateScene();
 document.getElementById('SceneElement'+background).style.backgroundColor = 'transparent';
 var grid = scene.grid;
-const SceneX = scene.size.x;
-const SceneY = scene.size.y;
 var generator = new WorldGenerator(scene,grid);
-generator.CreateBottomLayer()
+generator.CreateBottomLayer({
+    layers: 3,
+    chance: [100, 50, 10, 20, 0]
+});
 let borders = scene.CreateBorders(10);
 let steve = scene.CreateObject(164, 64, 64, 64, true);
 var PhysicsObjects = [];

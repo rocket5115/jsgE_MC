@@ -93,7 +93,7 @@ class Physics {
         let statics = [];
         let dynamics = [];
         for(let id in obj) {
-            if(SceneObjects[this.id][id].static===true){dynamics[dynamics.length]=SceneObjects[this.id][id];continue;};
+            if(SceneObjects[this.id][id].static===true&&!SceneObjects[this.id][id].disabled){dynamics[dynamics.length]=SceneObjects[this.id][id];continue;};
             statics[statics.length]=SceneObjects[this.id][id];continue;
         };
         dynamics.forEach(obj=>{
@@ -172,6 +172,7 @@ class Movement {
     MoveLeft(obj,objs,num) {
         let statics = [];
         for(let id in objs) {
+            if(SceneObjects[this.id][id].disabled)continue;
             statics[statics.length]=SceneObjects[this.id][id];
         };
         let tdif = 100;
@@ -200,6 +201,7 @@ class Movement {
     MoveRight(obj,objs,num) {
         let statics = [];
         for(let id in objs) {
+            if(SceneObjects[this.id][id].disabled)continue;
             statics[statics.length]=SceneObjects[this.id][id];
         };
         let tdif = 100;
@@ -268,7 +270,7 @@ class Grid {
         return objs;
     };
     SetReferencePoint(x,y) {
-        this.chunk={x1:x,x2:x+3<=this.x?x+3:this.x,y1:y,y2:y+3<=this.y?y+3:this.y};
+        this.chunk={x1:x-2>0?x-2:0,x2:x+2<=this.x?x+2:this.x,y1:y-2>0?y-2:0,y2:y+2<=this.y?y+2:this.y};
     };
 };
 
@@ -282,13 +284,12 @@ class MiscObject {
         if(!SceneObjects[this.id][id])return;
         let doc = document.getElementById(id);
         doc.style.backgroundImage='url("'+url+'")';
-        console.log(url)
         return true;
     };
     GetImage(id) {
         if(!SceneObjects[this.id][id])return;
         let doc = document.getElementById(id);
-        return(doc.style.backgroundImage.replace('url("../','').replace('.png")',''));
+        return(doc.style.backgroundImage.replace('url("./','').replace('.png")',''));
     };
     FocusOnElement(obj) {
         FocusOn[0]=document.getElementById(obj);
@@ -297,6 +298,14 @@ class MiscObject {
     ClearFocus() {
         FocusOn[0]=undefined;
         return true;
+    };
+    DisablePhysics(id) {
+        if(!SceneObjects[this.id][id])return;
+        SceneObjects[this.id][id].disabled=true;
+    };
+    EnablePhysics(id) {
+        if(!SceneObjects[this.id][id])return;
+        SceneObjects[this.id][id].disabled=false;
     };
 };
 
@@ -310,10 +319,7 @@ const FocusOnElement = () =>{
 setTimeout(FocusOnElement,15);
 
 const RandomNumberCheck = (num1,num2) => {
-    if(num1==100)return false;
-    if(num1==0)return true;
-    if(num2<num1)return true;
-    return true;
+    return Math.random()*(num1-num2+1)+num1>num2;
 };
 
 class WorldGenerator {
