@@ -340,7 +340,6 @@ class WorldGenerator {
             } else {
                 ychance[i]=chance[i]||chance[chance.length-1];
             };
-            this.lasty++;
         };
         let x=Math.floor(this.x/64);
         y.forEach((y,k)=>{
