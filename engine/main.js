@@ -114,7 +114,10 @@ class Physics {
                         };
                     };
                 };
-                if(tdif==100)tdif=0;
+                if(tdif==100)return;
+                if(FocusOn[0]!=undefined&&FocusOn[0].id==obj.id){
+                    FocusOnElement();
+                };
                 let doc = document.getElementById(obj.id);
                 doc.style.top = Number(doc.style.top.replace('px', ''))+tdif+'px';
                 for(let i=0;i<4;i++) {
@@ -124,10 +127,10 @@ class Physics {
                 if(obj.attached.length>0){
                     obj.attached.forEach(obj=>{
                         let doc = document.getElementById(obj.id);
-                        doc.style.left=Number(doc.style.left.replace('px',''))+tdif+'px';
+                        doc.style.top=Number(doc.style.top.replace('px',''))+tdif+'px';
                         for(let j=0;j<4;j++) {
-                            obj.walls[i].y1=obj.walls[i].y1+tdif;
-                            obj.walls[i].y2=obj.walls[i].y2+tdif;
+                            obj.walls[j].y1=obj.walls[j].y1+tdif;
+                            obj.walls[j].y2=obj.walls[j].y2+tdif;
                         };
                     });
                 };
@@ -143,7 +146,8 @@ class Physics {
                         };
                     };
                 };
-                if(tdif==100)tdif=0;
+                if(tdif==100)return;
+                FocusOnElement();
                 let doc = document.getElementById(obj.id);
                 doc.style.top = Number(doc.style.top.replace('px', ''))+tdif+'px';
                 for(let i=0;i<4;i++) {
@@ -153,10 +157,10 @@ class Physics {
                 if(obj.attached.length>0){
                     obj.attached.forEach(obj=>{
                         let doc = document.getElementById(obj.id);
-                        doc.style.left=Number(doc.style.left.replace('px',''))+tdif+'px';
+                        doc.style.top=Number(doc.style.top.replace('px',''))+tdif+'px';
                         for(let j=0;j<4;j++) {
-                            obj.walls[i].y1=obj.walls[i].y1+tdif;
-                            obj.walls[i].y2=obj.walls[i].y2+tdif;
+                            obj.walls[j].y1=obj.walls[j].y1+tdif;
+                            obj.walls[j].y2=obj.walls[j].y2+tdif;
                         };
                     });
                 };
@@ -189,13 +193,26 @@ class Movement {
                 };
             };
         };
-        if(tdif==100)tdif=0;
+        if(tdif==100)return;
         if(tdif>num)tdif=num;
         let doc = document.getElementById(obj.id);
         doc.style.left = Number(doc.style.left.replace('px', ''))-tdif+'px';
         for(let i=0;i<4;i++) {
             obj.walls[i].x1=obj.walls[i].x1-tdif;
             obj.walls[i].x2=obj.walls[i].x2-tdif;
+        };
+        if(FocusOn[0]!=undefined&&FocusOn[0].id==obj.id){
+            FocusOnElement();
+        };
+        if(obj.attached.length>0){
+            obj.attached.forEach(obj=>{
+                let doc = document.getElementById(obj.id);
+                doc.style.left=Number(doc.style.left.replace('px',''))-tdif+'px';
+                for(let j=0;j<4;j++) {
+                    obj.walls[j].x1=obj.walls[j].x1-tdif;
+                    obj.walls[j].x2=obj.walls[j].x2-tdif;
+                };
+            });
         };
     };
     MoveRight(obj,objs,num) {
@@ -218,13 +235,26 @@ class Movement {
                 };
             };
         };
-        if(tdif==100)tdif=0;
+        if(tdif==100)return;
         if(tdif>num)tdif=num;
         let doc = document.getElementById(obj.id);
         doc.style.left = Number(doc.style.left.replace('px', ''))+tdif+'px';
         for(let i=0;i<4;i++) {
             obj.walls[i].x1=obj.walls[i].x1+tdif;
             obj.walls[i].x2=obj.walls[i].x2+tdif;
+        };
+        if(FocusOn[0]!=undefined&&FocusOn[0].id==obj.id){
+            FocusOnElement();
+        };
+        if(obj.attached.length>0){
+            obj.attached.forEach(obj=>{
+                let doc = document.getElementById(obj.id);
+                doc.style.left=Number(doc.style.left.replace('px',''))+tdif+'px';
+                for(let j=0;j<4;j++) {
+                    obj.walls[j].x1=obj.walls[j].x1+tdif;
+                    obj.walls[j].x2=obj.walls[j].x2+tdif;
+                };
+            });
         };
     };
 };
@@ -260,13 +290,15 @@ class Grid {
     };
     get GetClosestObjects() {
         let objs = {};
-        let i=0;
-        this.grid.forEach(grid=>{
-            if(i<this.chunk.y1||i>this.chunk.y2){i++;return;};
+        let y=[];
+        for(let j=this.chunk.y1;j<this.chunk.y2;j++) {
+            y[j]=true;
+        };
+        for(let k in y) {
             for(let j=this.chunk.x1;j<this.chunk.x2;j++){
-                if(grid[j]!=false)objs[grid[j]]=true;
+                if(this.grid[k][j]!=false)objs[this.grid[k][j]]=true;
             };
-        });
+        };
         return objs;
     };
     SetReferencePoint(x,y) {
@@ -280,16 +312,16 @@ class MiscObject {
     constructor(id) {
         this.id = id;
     };
-    SetImage(id,url) {
+    SetImage(id,name) {
         if(!SceneObjects[this.id][id])return;
         let doc = document.getElementById(id);
-        doc.style.backgroundImage='url("'+url+'")';
+        doc.style.backgroundImage='url("./images/'+name+'.png")';
         return true;
     };
     GetImage(id) {
         if(!SceneObjects[this.id][id])return;
         let doc = document.getElementById(id);
-        return(doc.style.backgroundImage.replace('url("./','').replace('.png")',''));
+        return(doc.style.backgroundImage.replace('url("./images/','').replace('.png")',''));
     };
     FocusOnElement(obj) {
         FocusOn[0]=document.getElementById(obj);
@@ -307,6 +339,9 @@ class MiscObject {
         if(!SceneObjects[this.id][id])return;
         SceneObjects[this.id][id].disabled=false;
     };
+    AttachElementToElement(p,c) {
+        SceneObjects[this.id][p].attached.push(SceneObjects[this.id][c]);
+    };
 };
 
 const FocusOnElement = () =>{
@@ -314,9 +349,7 @@ const FocusOnElement = () =>{
         let elementRect=FocusOn[0].getBoundingClientRect();
         window.scrollTo((elementRect.left + window.pageXOffset) - (1920/2), (elementRect.top + window.pageYOffset) - (1080 / 2));
     };
-    setTimeout(FocusOnElement,15);
 };
-setTimeout(FocusOnElement,15);
 
 const RandomNumberCheck = (num1,num2) => {
     return Math.random()*(num1-num2+1)+num1>num2;
@@ -333,8 +366,8 @@ class WorldGenerator {
     CreateBottomLayer(metadata) {
         metadata=metadata||{};
         let num = metadata.layers||3;
-        let material = metadata.material||'./images/bedrock.png';
-        let filler = metadata.filler||'./images/stone.png';
+        let material = metadata.material||'bedrock';
+        let filler = metadata.filler||'stone';
         let chance = metadata.chance||[];
         let yrepeat = Math.floor(this.y/64)-1;
         let y=[];
@@ -361,5 +394,8 @@ class WorldGenerator {
             };
         });
         return true;
+    };
+    CreateMiddleLayer(metadata) {
+        
     };
 };

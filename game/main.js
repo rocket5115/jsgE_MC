@@ -1,14 +1,38 @@
-var scene = new SceneCreator((Math.floor(1920/64)*64), (Math.floor(1080/64)*64), 64);
+var scene = new SceneCreator((Math.floor(1920/64)*64)*20, (Math.floor(1080/64)*64)*20, 64);
 let background = scene.CreateScene();
 document.getElementById('SceneElement'+background).style.backgroundColor = 'transparent';
+let sky = scene.CreateObject(0,0,scene.size.x,scene.size.y);
+scene.object.DisablePhysics(sky);
+scene.object.SetImage(sky, 'sky');
 var grid = scene.grid;
 var generator = new WorldGenerator(scene,grid);
 generator.CreateBottomLayer({
-    layers: 3,
-    chance: [100, 50, 10, 20, 0]
+    layers: 6,
+    chance: [100, 50, 30, 20, 10, 0]
 });
 let borders = scene.CreateBorders(10);
-let steve = scene.CreateObject(164, 64, 64, 64, true);
+let steve = scene.CreateObject(164, 1100, 32, 128, true);
+var stdoc = document.getElementById(steve);
+scene.object.SetImage(steve,'body');
+stdoc.classList.add('SteveBody');
+stdoc.classList.add('StevePart');
+//BodyParts
+let head = scene.CreateObject(164, 1100, 32, 32);
+var stdoc = document.getElementById(head);
+stdoc.classList.add('SteveHead');
+stdoc.classList.add('StevePart');
+scene.object.AttachElementToElement(steve,head);
+let arms = scene.CreateObject(164+8, 1132, 16, 48);
+var stdoc = document.getElementById(arms);
+stdoc.classList.add('SteveArms');
+stdoc.classList.add('StevePart');
+scene.object.AttachElementToElement(steve,arms);
+let legs = scene.CreateObject(164+8, 1132+48, 16, 48);
+var stdoc = document.getElementById(legs);
+stdoc.classList.add('SteveLegs');
+stdoc.classList.add('StevePart');
+scene.object.AttachElementToElement(steve,legs);
+delete(stdoc);
 var PhysicsObjects = [];
 PhysicsObjects[borders[0]]=true;
 PhysicsObjects[borders[1]]=true;
@@ -26,9 +50,7 @@ const ClosestObjects = () => {
     for(let id in grid.GetClosestObjects){
         PhysicsObjects[id]=true;
     };
-    let x=Math.floor((SceneObjects[background][steve].walls[2].x1+32)/64)
-    let y=Math.floor(SceneObjects[background][steve].walls[2].y1/64)-1
-    grid.SetReferencePoint(x,y);
+    grid.SetReferencePoint(Math.floor((SceneObjects[background][steve].walls[2].x1+16)/64),Math.floor((SceneObjects[background][steve].walls[2].y1+16)/64)-1);
     setTimeout(ClosestObjects, 50);
 };
 setTimeout(ClosestObjects, 50);
@@ -59,14 +81,84 @@ window.addEventListener('keyup', e => {
     if(e.code=='KeyD')r=false;
 });
 
+const Positions = [{min:-45,max:45},{min:-45,max:45}];
+let finished = false;
+
+const MoveLegs = () => {
+    //let rot = Number(getComputedStyle(document.documentElement).getPropertyValue('--slr1').replace('deg', ''));
+    let rot = Number(getComputedStyle(document.documentElement).getPropertyValue('--rot1').replace('deg',''));
+    if(rot-5>=Positions[0].min&&!finished){
+        document.documentElement.style.setProperty('--rot1', rot-5+'deg');
+        document.documentElement.style.setProperty('--rot2', -rot+5+'deg');
+        if(rot-5<=Positions[0].min){
+            finished=true;
+        };
+    } else {
+        document.documentElement.style.setProperty('--rot1', rot+5+'deg');
+        document.documentElement.style.setProperty('--rot2', -rot-5+'deg');
+        if(rot+5>=Positions[0].max){
+            finished=false;
+        };
+    };
+};
+
+const MoveLegsNormal = () => {
+    document.documentElement.style.setProperty('--rot1', '0deg');
+    document.documentElement.style.setProperty('--rot2', '0deg');
+};
+
 var mov = new Movement(background);
+let lastmov = 1;
+
+const angle = (cx, cy, ex, ey) => {
+    return Math.atan2(ey-cy,ex-cx)*180/Math.PI;
+}
+
+const sh = document.getElementById(head);
+
+document.addEventListener('mousemove', (e)=>{
+    let op = sh.getBoundingClientRect();
+    let x = (op.left + sh.clientWidth / 2);
+    let y = (op.top + sh.clientHeight / 2);
+    let rect = angle(e.clientX, e.clientY, x, y)
+    if(lastmov==1){
+        if(rect<40&&rect>-20){
+            document.documentElement.style.setProperty('--roth', rect+'deg');
+        };
+    } else if (lastmov==2) {
+        if(rect<-170||(rect<180&&rect>150)){
+            document.documentElement.style.setProperty('--roth', rect+'deg');
+        };
+    }
+});
 
 const Move = () => {
     if(l) {
-        mov.MoveLeft(SceneObjects[background][steve], PhysicsObjects, 5)
+        mov.MoveLeft(SceneObjects[background][steve], PhysicsObjects, 5);
     };
     if(r) {
-        mov.MoveRight(SceneObjects[background][steve], PhysicsObjects, 5)
+        mov.MoveRight(SceneObjects[background][steve], PhysicsObjects, 5);
+    };
+    if(l){
+        if(lastmov!=1){
+            lastmov=1;
+            document.documentElement.style.setProperty('--head', "url('../images/slh.png')");
+            document.documentElement.style.setProperty('--leg1', "url('../images/srll.png')");
+            document.documentElement.style.setProperty('--leg2', "url('../images/slrl.png')");
+            document.documentElement.style.setProperty('--roth', '0deg');
+        };
+        MoveLegs();
+    } else if(r) {
+        if(lastmov!=2){
+            lastmov=2;
+            document.documentElement.style.setProperty('--head', "url('../images/srh.png')");
+            document.documentElement.style.setProperty('--leg1', "url('../images/srrl.png')");
+            document.documentElement.style.setProperty('--leg2', "url('../images/slll.png')");
+            document.documentElement.style.setProperty('--roth', '179deg');
+        };
+        MoveLegs();
+    } else {
+        MoveLegsNormal();
     };
     setTimeout(Move,10);
 };
@@ -76,8 +168,11 @@ const GF = () =>{
     if(SceneObjects[background][steve].gravity<9){
         SceneObjects[background][steve].gravity++;
     };
-    setTimeout(GF,20)
 };
-setTimeout(GF,20)
+setInterval(GF,20)
 
-scene.object.FocusOnElement(steve)
+scene.object.FocusOnElement(steve);
+
+$('body').bind('contextmenu', function(e) {
+    return false;
+});
