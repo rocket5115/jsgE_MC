@@ -7,8 +7,10 @@ class SceneCreator {
         this.y = y||1080;
         this.id = Math.floor((this.x/this.y)*Math.random()*10);
         this.lgrid;
+        this.h;
         if(h){
             this.lgrid = new Grid(x,y,h);
+            this.h = h;
         };
         this.lobj = new MiscObject(this.id);
     };
@@ -19,7 +21,7 @@ class SceneCreator {
         return this.lobj;
     };
     get size() {
-        return {x:this.x,y:this.y};
+        return {x:this.x,y:this.y,h:this.h};
     };
     get GetId() {
         return this.id;
@@ -353,49 +355,4 @@ const FocusOnElement = () =>{
 
 const RandomNumberCheck = (num1,num2) => {
     return Math.random()*(num1-num2+1)+num1>num2;
-};
-
-class WorldGenerator {
-    constructor(map,grid) {
-        this.map = map;
-        this.grid = grid;
-        this.id = map.GetId;
-        this.x = map.size.x;
-        this.y = map.size.y;
-    };
-    CreateBottomLayer(metadata) {
-        metadata=metadata||{};
-        let num = metadata.layers||3;
-        let material = metadata.material||'bedrock';
-        let filler = metadata.filler||'stone';
-        let chance = metadata.chance||[];
-        let yrepeat = Math.floor(this.y/64)-1;
-        let y=[];
-        let ychance=[];
-        for(let i=0;i<num;i++){
-            y[i]=yrepeat;yrepeat--;
-            if(chance.length==0){
-                ychance[i]=100;
-            } else {
-                ychance[i]=chance[i]||chance[chance.length-1];
-            };
-        };
-        let x=Math.floor(this.x/64);
-        y.forEach((y,k)=>{
-            for(let i=0;i<x;i++){
-                let rand = Math.random()*100;
-                let obj = this.map.CreateObject(i*64,y*64,64,64);
-                if(RandomNumberCheck(ychance[k],rand)){
-                    this.map.object.SetImage(obj, material, false);
-                } else {
-                    this.map.object.SetImage(obj, filler, false);
-                };
-                this.grid.SetObjectOnGrid(i,y-1,obj);
-            };
-        });
-        return true;
-    };
-    CreateMiddleLayer(metadata) {
-        
-    };
 };

@@ -1,33 +1,32 @@
-var scene = new SceneCreator((Math.floor(1920/64)*64)*20, (Math.floor(1080/64)*64)*20, 64);
+var scene = new SceneCreator((Math.floor(1920/64)*64)+64, (Math.floor(1080/64)*64), 64);
 let background = scene.CreateScene();
 document.getElementById('SceneElement'+background).style.backgroundColor = 'transparent';
 let sky = scene.CreateObject(0,0,scene.size.x,scene.size.y);
 scene.object.DisablePhysics(sky);
 scene.object.SetImage(sky, 'sky');
 var grid = scene.grid;
-var generator = new WorldGenerator(scene,grid);
-generator.CreateBottomLayer({
-    layers: 6,
-    chance: [100, 50, 30, 20, 10, 0]
-});
+
+var generator = new ChunkGenerator(scene,grid)
+generator.PreLoadChunks()
+
 let borders = scene.CreateBorders(10);
-let steve = scene.CreateObject(164, 1100, 32, 128, true);
+let steve = scene.CreateObject(164, 500, 32, 128, true);
 var stdoc = document.getElementById(steve);
 scene.object.SetImage(steve,'body');
 stdoc.classList.add('SteveBody');
 stdoc.classList.add('StevePart');
 //BodyParts
-let head = scene.CreateObject(164, 1100, 32, 32);
+let head = scene.CreateObject(164, 500, 32, 32);
 var stdoc = document.getElementById(head);
 stdoc.classList.add('SteveHead');
 stdoc.classList.add('StevePart');
 scene.object.AttachElementToElement(steve,head);
-let arms = scene.CreateObject(164+8, 1132, 16, 48);
+let arms = scene.CreateObject(164+8, 532, 16, 48);
 var stdoc = document.getElementById(arms);
 stdoc.classList.add('SteveArms');
 stdoc.classList.add('StevePart');
 scene.object.AttachElementToElement(steve,arms);
-let legs = scene.CreateObject(164+8, 1132+48, 16, 48);
+let legs = scene.CreateObject(164+8, 532+48, 16, 48);
 var stdoc = document.getElementById(legs);
 stdoc.classList.add('SteveLegs');
 stdoc.classList.add('StevePart');
