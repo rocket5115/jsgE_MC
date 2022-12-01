@@ -1,3 +1,5 @@
+const GeneratedChunks = [];
+
 class ChunkGenerator {
     constructor(scene,grid) {
         this.map = scene;
@@ -5,9 +7,12 @@ class ChunkGenerator {
         this.xchunks = [];
         this.ychunks = [];
         this.chunks = [];
+        this.p=this.map.size.h;
+        this.range=3;
+        this.reference={x1:0,x2:0+this.range,y1:0,y2:0+this.range};
     };
     DivChunks(x,p,y) {
-        let fl = Math.floor(x/p)
+        let fl = Math.floor(x/p);
         if(x/p!=fl) {
             for(let i=0;i<fl;i++){
                 if(i!=fl-1){
@@ -37,12 +42,57 @@ class ChunkGenerator {
         };
         this.ychunks.forEach((chunk,k) => {
             this.chunks[k]={s:chunk.s,e:chunk.e};
+            for(let i=chunk.s;i<=chunk.e;i++){
+                GeneratedChunks[i]=[];
+            };
             for(let i=0;i<this.xchunks.length;i++){
                 this.chunks[k][i]=this.xchunks[i];
+                GeneratedChunks.forEach(gen=>{
+                    for(let j=this.xchunks[i].s;j<=this.xchunks[i].e;j++){
+                        gen[j]=false;
+                    };
+                });
             };
         });
+        this.Generator();
     };
     PreLoadChunks(s) {
         this.DivChunks(this.map.size.x/this.map.size.h,s||6,Math.floor((this.map.size.y)/this.map.size.h)-1);        
+    };
+    Generator() {
+        let fill = 1;
+        for(let i=this.chunks.length-1;i>=this.chunks.length-fill;i--){
+            let y=this.chunks[i].s
+            console.log(this.chunks[i].s, this.chunks[i].e)
+            let loop = function(y,chunk,map,p) {
+                for(let key in chunk){
+                    if(typeof(Number(key))!='number')return;
+                    let arr=chunk[key];
+                    for(let j=arr.s;j<=arr.e;j++){
+                        GeneratedChunks[y-1][j]=map.CreateObject(j*p,y*p,p,p);
+                    };
+                };
+            };
+            while(y!=this.chunks[i].e+2){
+                loop(y,this.chunks[i],this.map,this.p);
+                y++;
+            };
+        };
+    };
+    SetReferencePoint(x,y) {
+        x=Math.floor(x/this.p);
+        y=Math.floor(y/this.p)+1;
+        this.reference={x1:x-this.range>-1?x-this.range:0,x2:x+this.range<GeneratedChunks[0].length?x+this.range:GeneratedChunks[0].length-1,y1:y-this.range>-1?y-this.range:0,y2:y+this.range<GeneratedChunks.length?y+this.range:GeneratedChunks.length-1};
+    };
+    get GetClosestObjects() {
+        let retval = [];
+        let i=0;
+        GeneratedChunks.forEach(grid=>{
+            if(i<this.reference.y1||i>this.reference.y2){i++;return;};
+            for(let j=this.reference.x1;j<this.reference.x2;j++){
+                if(grid[j]!=false){retval[grid[j]]=true;}
+            };
+        });
+        return retval
     };
 };

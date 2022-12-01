@@ -46,10 +46,10 @@ const ClosestObjects = () => {
     PhysicsObjects[borders[2]]=true;
     PhysicsObjects[borders[3]]=true;
     PhysicsObjects[steve]=true;
-    for(let id in grid.GetClosestObjects){
+    for(let id in generator.GetClosestObjects){
         PhysicsObjects[id]=true;
     };
-    grid.SetReferencePoint(Math.floor((SceneObjects[background][steve].walls[2].x1+16)/64),Math.floor((SceneObjects[background][steve].walls[2].y1+16)/64)-1);
+    generator.SetReferencePoint(SceneObjects[background][steve].walls[2].x1+16,SceneObjects[background][steve].walls[2].y1+16);
     setTimeout(ClosestObjects, 50);
 };
 setTimeout(ClosestObjects, 50);
