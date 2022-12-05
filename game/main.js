@@ -1,4 +1,4 @@
-var scene = new SceneCreator((Math.floor(1920/64)*64)+64, (Math.floor(1080/64)*64), 64);
+var scene = new SceneCreator(((Math.floor(1920/64)*64)+64)*2, ((Math.floor(1080/64)*64)+64)*2, 64);
 let background = scene.CreateScene();
 document.getElementById('SceneElement'+background).style.backgroundColor = 'transparent';
 let sky = scene.CreateObject(0,0,scene.size.x,scene.size.y);
@@ -6,8 +6,51 @@ scene.object.DisablePhysics(sky);
 scene.object.SetImage(sky, 'sky');
 var grid = scene.grid;
 
+var ymax = Math.floor(scene.size.y/scene.size.h);
+yrng = [80,50,40,10]
+
+const RandomNumber = (min,max) => {
+    return Math.floor((Math.random()*(max-min))+min);
+};
 var generator = new ChunkGenerator(scene,grid)
-generator.PreLoadChunks()
+generator.PreLoadChunks(6, function(x,y){
+    if(y>ymax-1)return false;
+    if(y>ymax-2){
+        return {image:'bedrock'}
+    };
+    if(y<ymax&&y>ymax-4){
+        if(RandomNumber(0,100)>yrng[(ymax-y)-1]){
+            return {image:'bedrock'}
+        } else {
+            return {image:'stone'}
+        };
+    };
+    console.log(y,ymax-4, ymax-3)
+    if(y<=ymax-4&&y>ymax-7){
+        let rand = RandomNumber(0,100)
+        if(rand>95){
+            return {image:'diamondore'}
+        } else if(rand>90) {
+            return {image:'goldore'}
+        } else if(rand>85) {
+            return {image:'ironore'}
+        } else {
+            return {image:'stone'}
+        };
+    };
+    /*else if(y<=ymax-3) {
+        if(RandomNumberCheck(98,Math.random()*100)){
+            return {image:'diamondore'}
+        } else if(RandomNumberCheck(93,Math.random()*100)) {
+            return {image:'ironore'}
+        } else if(RandomNumberCheck(96,Math.random()*100)) {
+            return {image:'goldore'}
+        } else {
+            return {image:'stone'}
+        };
+    };*/
+    return false;
+});
 
 let borders = scene.CreateBorders(10);
 let steve = scene.CreateObject(164, 500, 32, 128, true);

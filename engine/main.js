@@ -352,7 +352,3 @@ const FocusOnElement = () =>{
         window.scrollTo((elementRect.left + window.pageXOffset) - (1920/2), (elementRect.top + window.pageYOffset) - (1080 / 2));
     };
 };
-
-const RandomNumberCheck = (num1,num2) => {
-    return Math.random()*(num1-num2+1)+num1>num2;
-};

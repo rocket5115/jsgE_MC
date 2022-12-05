@@ -11,7 +11,7 @@ class ChunkGenerator {
         this.range=3;
         this.reference={x1:0,x2:0+this.range,y1:0,y2:0+this.range};
     };
-    DivChunks(x,p,y) {
+    DivChunks(x,p,y,func) {
         let fl = Math.floor(x/p);
         if(x/p!=fl) {
             for(let i=0;i<fl;i++){
@@ -54,22 +54,26 @@ class ChunkGenerator {
                 });
             };
         });
-        this.Generator();
+        func=func||function(){return true};
+        this.Generator(func);
     };
-    PreLoadChunks(s) {
-        this.DivChunks(this.map.size.x/this.map.size.h,s||6,Math.floor((this.map.size.y)/this.map.size.h)-1);        
+    PreLoadChunks(s,func) {
+        this.DivChunks(this.map.size.x/this.map.size.h,s||6,this.map.size.y/this.map.size.h,func);        
     };
-    Generator() {
+    Generator(func) {
         let fill = 1;
         for(let i=this.chunks.length-1;i>=this.chunks.length-fill;i--){
             let y=this.chunks[i].s
-            console.log(this.chunks[i].s, this.chunks[i].e)
             let loop = function(y,chunk,map,p) {
                 for(let key in chunk){
                     if(typeof(Number(key))!='number')return;
                     let arr=chunk[key];
                     for(let j=arr.s;j<=arr.e;j++){
-                        GeneratedChunks[y-1][j]=map.CreateObject(j*p,y*p,p,p);
+                        let f=func(j,y)
+                        if(f){
+                            GeneratedChunks[y-1][j]=map.CreateObject(j*p,y*p,p,p);
+                            map.object.SetImage(GeneratedChunks[y-1][j],f.image||'bedrock');
+                        };
                     };
                 };
             };
