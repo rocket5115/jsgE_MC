@@ -22,21 +22,25 @@ generator.PreLoadChunks(6, function(x,y){
         if(RandomNumber(0,100)>yrng[(ymax-y)-1]){
             return {image:'bedrock'}
         } else {
+            if(RandomNumber(0,200)<15){
+                return {image:'diamondore'}
+            };
             return {image:'stone'}
         };
     };
-    console.log(y,ymax-4, ymax-3)
     if(y<=ymax-4&&y>ymax-7){
-        let rand = RandomNumber(0,100)
-        if(rand>95){
+        if(RandomNumber(0,200)<2){
             return {image:'diamondore'}
-        } else if(rand>90) {
+        } else if(RandomNumber(0,200)<5) {
             return {image:'goldore'}
-        } else if(rand>85) {
+        } else if(RandomNumber(0,200)<10) {
             return {image:'ironore'}
         } else {
             return {image:'stone'}
         };
+    };
+    if(y<ymax-5&&y>ymax-20) {
+        return {image:'stone'}
     };
     /*else if(y<=ymax-3) {
         if(RandomNumberCheck(98,Math.random()*100)){
