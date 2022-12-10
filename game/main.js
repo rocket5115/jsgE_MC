@@ -16,68 +16,76 @@ var generator = new ChunkGenerator(scene,grid)
 generator.PreLoadChunks(6, function(x,y){
     if(y>ymax-1)return false;
     if(y>ymax-2){
-        return {image:'bedrock'}
+        return {image:'bedrock',await:true}
     };
     if(y<ymax&&y>ymax-4){
         if(RandomNumber(0,100)>yrng[(ymax-y)-1]){
-            return {image:'bedrock'}
+            return {image:'bedrock',await:true}
         } else {
             if(RandomNumber(0,200)<15){
-                return {image:'diamondore'}
+                return {image:'diamondore',await:true}
             };
-            return {image:'stone'}
+            return {image:'stone',await:true}
         };
     };
     if(y<=ymax-4&&y>ymax-7){
         if(RandomNumber(0,200)<2){
-            return {image:'diamondore'}
+            return {image:'diamondore',await:true}
         } else if(RandomNumber(0,200)<5) {
-            return {image:'goldore'}
+            return {image:'goldore',await:true}
         } else if(RandomNumber(0,200)<10) {
-            return {image:'ironore'}
+            return {image:'ironore',await:true}
         } else {
-            return {image:'stone'}
+            return {image:'stone',await:true}
         };
     };
     if(y<ymax-5&&y>ymax-20) {
-        return {image:'stone'}
+        return {image:'stone',await:true}
     };
-    /*else if(y<=ymax-3) {
-        if(RandomNumberCheck(98,Math.random()*100)){
-            return {image:'diamondore'}
-        } else if(RandomNumberCheck(93,Math.random()*100)) {
-            return {image:'ironore'}
-        } else if(RandomNumberCheck(96,Math.random()*100)) {
-            return {image:'goldore'}
-        } else {
-            return {image:'stone'}
-        };
-    };*/
     return false;
 });
 
 let borders = scene.CreateBorders(10);
-let steve = scene.CreateObject(164, 500, 32, 128, true);
+let steve = scene.CreateObject(2148, 500, 32, 128, true);
 var stdoc = document.getElementById(steve);
 scene.object.SetImage(steve,'body');
 stdoc.classList.add('SteveBody');
 stdoc.classList.add('StevePart');
 //BodyParts
-let head = scene.CreateObject(164, 500, 32, 32);
+let head = scene.CreateObject(2148, 500, 32, 32);
 var stdoc = document.getElementById(head);
 stdoc.classList.add('SteveHead');
 stdoc.classList.add('StevePart');
 scene.object.AttachElementToElement(steve,head);
-let arms = scene.CreateObject(164+8, 532, 16, 48);
+let arms = scene.CreateObject(2148+8, 532, 16, 48);
 var stdoc = document.getElementById(arms);
 stdoc.classList.add('SteveArms');
 stdoc.classList.add('StevePart');
 scene.object.AttachElementToElement(steve,arms);
-let legs = scene.CreateObject(164+8, 532+48, 16, 48);
+let legs = scene.CreateObject(2148+8, 532+48, 16, 48);
 var stdoc = document.getElementById(legs);
 stdoc.classList.add('SteveLegs');
 stdoc.classList.add('StevePart');
 scene.object.AttachElementToElement(steve,legs);
+
+const GenChunks = [];
+
+setInterval(()=>{
+    let x=Math.floor(((SceneObjects[background][steve].walls[3].x1+16)/64)/6)
+    let y=Math.floor(((SceneObjects[background][steve].walls[3].y1+16)/64)/6)
+    if(!GenChunks[x]||!GenChunks[y]||!GenChunks[x-1]||!GenChunks[y-1]||!GenChunks[x+1]||!GenChunks[y+1]){
+        generator.LoadNextChunk(x,y);
+        generator.LoadNextChunk(x-1,y);
+        generator.LoadNextChunk(x-1,y+1);
+        generator.LoadNextChunk(x+1,y);
+        generator.LoadNextChunk(x+1,y+1);
+        //
+        generator.UnloadChunk(x-2,y);
+        generator.UnloadChunk(x-2,y+1);
+        generator.UnloadChunk(x+2,y);
+        generator.UnloadChunk(x+2,y+1);
+    }
+},50);
 delete(stdoc);
 var PhysicsObjects = [];
 PhysicsObjects[borders[0]]=true;
@@ -131,7 +139,6 @@ const Positions = [{min:-45,max:45},{min:-45,max:45}];
 let finished = false;
 
 const MoveLegs = () => {
-    //let rot = Number(getComputedStyle(document.documentElement).getPropertyValue('--slr1').replace('deg', ''));
     let rot = Number(getComputedStyle(document.documentElement).getPropertyValue('--rot1').replace('deg',''));
     if(rot-5>=Positions[0].min&&!finished){
         document.documentElement.style.setProperty('--rot1', rot-5+'deg');
@@ -179,13 +186,13 @@ document.addEventListener('mousemove', (e)=>{
 });
 
 const Move = () => {
-    if(l) {
+    if(l&&!r) {
         mov.MoveLeft(SceneObjects[background][steve], PhysicsObjects, 5);
     };
-    if(r) {
+    if(r&&!l) {
         mov.MoveRight(SceneObjects[background][steve], PhysicsObjects, 5);
     };
-    if(l){
+    if(l&&!r){
         if(lastmov!=1){
             lastmov=1;
             document.documentElement.style.setProperty('--head', "url('../images/slh.png')");
@@ -194,7 +201,7 @@ const Move = () => {
             document.documentElement.style.setProperty('--roth', '0deg');
         };
         MoveLegs();
-    } else if(r) {
+    } else if(r&&!l) {
         if(lastmov!=2){
             lastmov=2;
             document.documentElement.style.setProperty('--head', "url('../images/srh.png')");

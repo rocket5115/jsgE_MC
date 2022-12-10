@@ -6,16 +6,11 @@ class SceneCreator {
         this.x = x||1920;
         this.y = y||1080;
         this.id = Math.floor((this.x/this.y)*Math.random()*10);
-        this.lgrid;
         this.h;
         if(h){
-            this.lgrid = new Grid(x,y,h);
             this.h = h;
         };
         this.lobj = new MiscObject(this.id);
-    };
-    get grid() {
-        return this.lgrid;
     };
     get object() {
         return this.lobj;
@@ -74,6 +69,10 @@ class SceneCreator {
         p3 = this.CreateObject(0,this.y,this.x,objs[2]);
         p4 = this.CreateObject(0,0,objs[3],this.y);
         return [p1,p2,p3,p4];
+    };
+    DeleteObject(id) {
+        document.getElementById(id).remove();
+        delete(SceneObjects[this.id][id]);
     };
 };
 
@@ -261,53 +260,6 @@ class Movement {
     };
 };
 
-class Grid {
-    constructor(x,y,h) {
-        this.x = Math.floor(x/h);
-        this.y = Math.floor(y/h)-1;
-        this.h = h;
-        this.grid = [];
-        for(let i=0;i<this.y;i++) {
-            this.grid[i]=[];
-        };
-        this.grid.forEach(y=>{
-            for(let i=0;i<this.x;i++) {
-                y[i]=false;
-            };
-        });
-        this.chunk = {x1:0,x2:3,y1:0,y2:3};
-    };
-    IsFree(x,y) {
-        return this.grid[y][x];
-    };
-    IsAdjacent(x,y) {
-        return ((this.grid[y-1]!=undefined&&this.grid[y-1][x]!=false)||(this.grid[y+1]!=undefined&&this.grid[y+1][x]!=false)||(this.grid[y][x-1]!=undefined&&this.grid[y][x-1]!=false)||(this.grid[y][x+1]!=undefined&&this.grid[y][x+1]!=false));
-    };
-    GetObjectOnGrid(x,y) {
-        return this.grid[y][x];
-    };
-    SetObjectOnGrid(x,y,o) {
-        this.grid[y][x]=o;
-        return true;
-    };
-    get GetClosestObjects() {
-        let objs = {};
-        let y=[];
-        for(let j=this.chunk.y1;j<this.chunk.y2;j++) {
-            y[j]=true;
-        };
-        for(let k in y) {
-            for(let j=this.chunk.x1;j<this.chunk.x2;j++){
-                if(this.grid[k][j]!=false)objs[this.grid[k][j]]=true;
-            };
-        };
-        return objs;
-    };
-    SetReferencePoint(x,y) {
-        this.chunk={x1:x-2>0?x-2:0,x2:x+2<=this.x?x+2:this.x,y1:y-2>0?y-2:0,y2:y+2<=this.y?y+2:this.y};
-    };
-};
-
 const FocusOn = [];
 
 class MiscObject {
@@ -349,6 +301,6 @@ class MiscObject {
 const FocusOnElement = () =>{
     if(FocusOn[0]!=undefined){
         let elementRect=FocusOn[0].getBoundingClientRect();
-        window.scrollTo((elementRect.left + window.pageXOffset) - (1920/2), (elementRect.top + window.pageYOffset) - (1080 / 2));
+        window.scrollTo((elementRect.left + window.pageXOffset) - (1920/2), (elementRect.top + window.pageYOffset) - (1080 / 6));
     };
 };

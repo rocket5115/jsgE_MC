@@ -1,9 +1,9 @@
 const GeneratedChunks = [];
+const GeneratedChunksImages = [];
 
 class ChunkGenerator {
-    constructor(scene,grid) {
+    constructor(scene) {
         this.map = scene;
-        this.grid = grid;
         this.xchunks = [];
         this.ychunks = [];
         this.chunks = [];
@@ -44,12 +44,14 @@ class ChunkGenerator {
             this.chunks[k]={s:chunk.s,e:chunk.e};
             for(let i=chunk.s;i<=chunk.e;i++){
                 GeneratedChunks[i]=[];
+                GeneratedChunksImages[i]=[];
             };
             for(let i=0;i<this.xchunks.length;i++){
                 this.chunks[k][i]=this.xchunks[i];
-                GeneratedChunks.forEach(gen=>{
+                GeneratedChunks.forEach((gen,key)=>{
                     for(let j=this.xchunks[i].s;j<=this.xchunks[i].e;j++){
                         gen[j]=false;
+                        GeneratedChunksImages[key][j]=false;
                     };
                 });
             };
@@ -71,8 +73,14 @@ class ChunkGenerator {
                     for(let j=arr.s;j<=arr.e;j++){
                         let f=func(j,y)
                         if(f){
-                            GeneratedChunks[y-1][j]=map.CreateObject(j*p,y*p,p,p);
-                            map.object.SetImage(GeneratedChunks[y-1][j],f.image||'bedrock');
+                            if(f.await!=undefined&&f.await){
+                                GeneratedChunks[y-1][j]={image:f.image||'bedrock'};
+                                GeneratedChunksImages[y-1][j]={image:f.image||'bedrock'};
+                            } else {
+                                GeneratedChunks[y-1][j]=map.CreateObject(j*p,y*p,p,p);
+                                map.object.SetImage(GeneratedChunks[y-1][j],f.image||'bedrock');
+                                GeneratedChunksImages[y-1][j]={image:f.image||'bedrock'};
+                            };
                         };
                     };
                 };
@@ -94,9 +102,50 @@ class ChunkGenerator {
         GeneratedChunks.forEach(grid=>{
             if(i<this.reference.y1||i>this.reference.y2){i++;return;};
             for(let j=this.reference.x1;j<this.reference.x2;j++){
-                if(grid[j]!=false){retval[grid[j]]=true;}
+                if(grid[j]!=false&&typeof(grid[j])=='string'){retval[grid[j]]=true;};
             };
+            i++;
         });
-        return retval
+        return retval;
+    };
+    LoadNextChunk(x,y) {
+        if(!this.chunks[y]){
+            if(!this.chunks[y-1]){
+                return;
+            } else {
+                y--;
+            };
+        };
+        if(!this.chunks[y][x]){
+            return;
+        };
+        for(let yx=this.chunks[y].s;yx<=this.chunks[y].e;yx++){
+            for(let i=this.chunks[y][x].s;i<=this.chunks[y][x].e;i++){
+                if(GeneratedChunks[yx][i].image){
+                    GeneratedChunks[yx][i]=this.map.CreateObject(i*this.p,yx*this.p,this.p,this.p);
+                    this.map.object.SetImage(GeneratedChunks[yx][i],GeneratedChunksImages[yx][i].image);
+                };
+            };
+        };
+    };
+    UnloadChunk(x,y) {
+        if(!this.chunks[y]){
+            if(!this.chunks[y-1]){
+                return;
+            } else {
+                y--;
+            };
+        };
+        if(!this.chunks[y][x]){
+            return;
+        };
+        for(let yx=this.chunks[y].s;yx<=this.chunks[y].e;yx++){
+            for(let i=this.chunks[y][x].s;i<=this.chunks[y][x].e;i++){
+                if(typeof(GeneratedChunks[yx][i])=='string'&&GeneratedChunks[yx][i]){
+                    this.map.DeleteObject(GeneratedChunks[yx][i]);
+                    GeneratedChunks[yx][i]={image:GeneratedChunksImages[yx][i]};
+                };
+            };
+        };
     };
 };
