@@ -105,24 +105,31 @@ const ClosestObjects = () => {
         PhysicsObjects[id]=true;
     };
     generator.SetReferencePoint(SceneObjects[background][steve].walls[2].x1+16,SceneObjects[background][steve].walls[2].y1+16);
-    setTimeout(ClosestObjects, 50);
+    //setTimeout(ClosestObjects, 50);
 };
-setTimeout(ClosestObjects, 50);
+setInterval(ClosestObjects, 50);
 
 var physics = new Physics(background);
 const PhysicsFunc = () => {
     physics.Next(PhysicsObjects);
-    setTimeout(PhysicsFunc, 10);
+    //setTimeout(PhysicsFunc, 10);
 };
-setTimeout(PhysicsFunc, 10);
+setInterval(PhysicsFunc, 10);
 
-let l = false
-let r = false
+let l = false;
+let r = false;
+let s = false;
 
 window.addEventListener('keydown', function(e) {
-    if(e.code=='Space'){
+    if(e.code=='Space'&&!s){
         e.preventDefault();
-        SceneObjects[background][steve].gravity = -13;
+        s=true;
+        let init = SceneObjects[background][steve].walls[3].y1
+        setTimeout(()=>{
+            if(init==SceneObjects[background][steve].walls[3].y1){
+                SceneObjects[background][steve].gravity = -13;
+            };
+        },20);
     } else if(e.code=='KeyA') {
         l=true;
     } else if(e.code=='KeyD'){
@@ -133,6 +140,7 @@ window.addEventListener('keydown', function(e) {
 window.addEventListener('keyup', e => {
     if(e.code=='KeyA')l=false;
     if(e.code=='KeyD')r=false;
+    if(e.code=='Space')s=false;
 });
 
 const Positions = [{min:-45,max:45},{min:-45,max:45}];
@@ -213,9 +221,9 @@ const Move = () => {
     } else {
         MoveLegsNormal();
     };
-    setTimeout(Move,10);
+    //setTimeout(Move,10);
 };
-setTimeout(Move,10);
+setInterval(Move,10);
 
 const GF = () =>{
     if(SceneObjects[background][steve].gravity<9){
