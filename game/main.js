@@ -1,19 +1,65 @@
-var scene = new SceneCreator(((Math.floor(1920/64)*64)+64)*2, ((Math.floor(1080/64)*64)+64)*2, 64);
+var scene = new SceneCreator(((Math.floor(1920/64)*64)+64)*4, ((Math.floor(1080/64)*64)+64)*2, 64);
 let background = scene.CreateScene();
 document.getElementById('SceneElement'+background).style.backgroundColor = 'transparent';
 let sky = scene.CreateObject(0,0,scene.size.x,scene.size.y);
 scene.object.DisablePhysics(sky);
 scene.object.SetImage(sky, 'sky');
-var grid = scene.grid;
 
-var ymax = Math.floor(scene.size.y/scene.size.h);
+var ymax = Math.floor(scene.size.y/scene.size.h)-2;
 yrng = [80,50,40,10]
 
 const RandomNumber = (min,max) => {
     return Math.floor((Math.random()*(max-min))+min);
 };
-var generator = new ChunkGenerator(scene,grid)
-generator.PreLoadChunks(6, function(x,y){
+var generator = new WorldGenerator(new ChunkGenerator(scene));
+const YFuncArgument = (rng,res) => {
+    if(RandomNumber(0,200)<rng) {
+        return res.success;
+    } else {
+        return res.failure||'stone';
+    };
+};
+generator.CreateWorld({
+    bottom: {y:ymax,ymax:ymax,image:'bedrock',await:true},
+    phase: [
+        ()=>{return {image:YFuncArgument(150,{success:'bedrock',failure:'stone'}),await:true}},
+        ()=>{return {image:YFuncArgument(80,{success:'bedrock',failure:'stone'}),await:true}},
+        ()=>{return {
+            image:function(){
+                let stn=YFuncArgument(40,{success:'bedrock',failure:'stone'});
+                if(stn=='bedrock')return stn;
+                let rng=YFuncArgument(7,{success:'diamondore',failure:'stone'});
+                if(rng=='stone')rng=YFuncArgument(10,{success:'goldore',failure:'stone'});
+                if(rng=='stone')rng=YFuncArgument(20,{success:'ironore',failure:'stone'});
+                return rng;
+            }(),
+            await:true}
+        },
+        ()=>{return {
+            image:function(){
+                let stn = YFuncArgument(10,{success:'diamondore',failure:'stone'});
+                if(stn=='diamonore')return stn;
+                let rng=YFuncArgument(15,{success:'ironore',failure:'stone'});
+                if(rng=='stone')rng=YFuncArgument(12,{success:'goldore',failure:'stone'});
+                return rng;
+            }(),
+            await:true}
+        },
+        ()=>{return {
+            image:function(){
+                let stn = YFuncArgument(6,{success:'diamondore',failure:'stone'});
+                if(stn=='diamonore')return stn;
+                let rng=YFuncArgument(5,{success:'ironore',failure:'stone'});
+                if(rng=='stone')rng=YFuncArgument(3,{success:'goldore',failure:'stone'});
+                return rng;
+            }(),
+            await:true}
+        }
+    ]
+});
+
+generator=generator.generator;
+/*generator.PreLoadChunks(6, function(x,y){
     if(y>ymax-1)return false;
     if(y>ymax-2){
         return {image:'bedrock',await:true}
@@ -43,26 +89,26 @@ generator.PreLoadChunks(6, function(x,y){
         return {image:'stone',await:true}
     };
     return false;
-});
+});*/
 
 let borders = scene.CreateBorders(10);
-let steve = scene.CreateObject(2148, 500, 32, 128, true);
+let steve = scene.CreateObject(scene.size.x/2, 500, 32, 128, true);
 var stdoc = document.getElementById(steve);
 scene.object.SetImage(steve,'body');
 stdoc.classList.add('SteveBody');
 stdoc.classList.add('StevePart');
 //BodyParts
-let head = scene.CreateObject(2148, 500, 32, 32);
+let head = scene.CreateObject(scene.size.x/2, 500, 32, 32);
 var stdoc = document.getElementById(head);
 stdoc.classList.add('SteveHead');
 stdoc.classList.add('StevePart');
 scene.object.AttachElementToElement(steve,head);
-let arms = scene.CreateObject(2148+8, 532, 16, 48);
+let arms = scene.CreateObject(scene.size.x/2+8, 532, 16, 48);
 var stdoc = document.getElementById(arms);
 stdoc.classList.add('SteveArms');
 stdoc.classList.add('StevePart');
 scene.object.AttachElementToElement(steve,arms);
-let legs = scene.CreateObject(2148+8, 532+48, 16, 48);
+let legs = scene.CreateObject(scene.size.x/2+8, 532+48, 16, 48);
 var stdoc = document.getElementById(legs);
 stdoc.classList.add('SteveLegs');
 stdoc.classList.add('StevePart');
@@ -71,20 +117,42 @@ scene.object.AttachElementToElement(steve,legs);
 const GenChunks = [];
 
 setInterval(()=>{
-    let x=Math.floor(((SceneObjects[background][steve].walls[3].x1+16)/64)/6)
-    let y=Math.floor(((SceneObjects[background][steve].walls[3].y1+16)/64)/6)
-    if(!GenChunks[x]||!GenChunks[y]||!GenChunks[x-1]||!GenChunks[y-1]||!GenChunks[x+1]||!GenChunks[y+1]){
-        generator.LoadNextChunk(x,y);
-        generator.LoadNextChunk(x-1,y);
-        generator.LoadNextChunk(x-1,y+1);
-        generator.LoadNextChunk(x+1,y);
-        generator.LoadNextChunk(x+1,y+1);
-        //
-        generator.UnloadChunk(x-2,y);
-        generator.UnloadChunk(x-2,y+1);
-        generator.UnloadChunk(x+2,y);
-        generator.UnloadChunk(x+2,y+1);
-    }
+    let x=Math.floor(((SceneObjects[background][steve].walls[3].x1+16)/64)/6);
+    let y=Math.floor(((SceneObjects[background][steve].walls[3].y1+16)/64)/6);
+    generator.LoadNextChunk(x,y);
+    generator.LoadNextChunk(x,y-1);
+    generator.LoadNextChunk(x,y+1);
+
+    generator.LoadNextChunk(x-1,y);
+    generator.LoadNextChunk(x-1,y-1);
+    generator.LoadNextChunk(x-1,y+1);
+
+    generator.LoadNextChunk(x+1,y);
+    generator.LoadNextChunk(x+1,y-1);
+    generator.LoadNextChunk(x+1,y+1);
+
+    generator.LoadNextChunk(x-2,y);
+    generator.LoadNextChunk(x-2,y-1);
+    generator.LoadNextChunk(x-2,y+1);
+
+    generator.LoadNextChunk(x+2,y);
+    generator.LoadNextChunk(x+2,y-1);
+    generator.LoadNextChunk(x+2,y+1);
+
+    generator.LoadNextChunk(x-3,y);
+    generator.LoadNextChunk(x-3,y+1);
+    generator.LoadNextChunk(x-3,y-1);
+
+    generator.LoadNextChunk(x+3,y);
+    generator.LoadNextChunk(x+3,y+1);
+    generator.LoadNextChunk(x+3,y-1);
+
+    generator.UnloadChunk(x-4,y);
+    generator.UnloadChunk(x-4,y+1);
+    generator.UnloadChunk(x-4,y-1);
+    generator.UnloadChunk(x+4,y);
+    generator.UnloadChunk(x+4,y+1);
+    generator.UnloadChunk(x+4,y-1);
 },50);
 delete(stdoc);
 var PhysicsObjects = [];
@@ -148,16 +216,16 @@ let finished = false;
 
 const MoveLegs = () => {
     let rot = Number(getComputedStyle(document.documentElement).getPropertyValue('--rot1').replace('deg',''));
-    if(rot-5>=Positions[0].min&&!finished){
-        document.documentElement.style.setProperty('--rot1', rot-5+'deg');
-        document.documentElement.style.setProperty('--rot2', -rot+5+'deg');
-        if(rot-5<=Positions[0].min){
+    if(rot-3>=Positions[0].min&&!finished){
+        document.documentElement.style.setProperty('--rot1', rot-3+'deg');
+        document.documentElement.style.setProperty('--rot2', -rot+3+'deg');
+        if(rot-3<=Positions[0].min){
             finished=true;
         };
     } else {
-        document.documentElement.style.setProperty('--rot1', rot+5+'deg');
-        document.documentElement.style.setProperty('--rot2', -rot-5+'deg');
-        if(rot+5>=Positions[0].max){
+        document.documentElement.style.setProperty('--rot1', rot+3+'deg');
+        document.documentElement.style.setProperty('--rot2', -rot-3+'deg');
+        if(rot+3>=Positions[0].max){
             finished=false;
         };
     };
@@ -195,10 +263,10 @@ document.addEventListener('mousemove', (e)=>{
 
 const Move = () => {
     if(l&&!r) {
-        mov.MoveLeft(SceneObjects[background][steve], PhysicsObjects, 5);
+        mov.MoveLeft(SceneObjects[background][steve], PhysicsObjects, 4);
     };
     if(r&&!l) {
-        mov.MoveRight(SceneObjects[background][steve], PhysicsObjects, 5);
+        mov.MoveRight(SceneObjects[background][steve], PhysicsObjects, 4);
     };
     if(l&&!r){
         if(lastmov!=1){
@@ -218,7 +286,8 @@ const Move = () => {
             document.documentElement.style.setProperty('--roth', '179deg');
         };
         MoveLegs();
-    } else {
+    } else if(lastmov!=3) {
+        lastmov=3
         MoveLegsNormal();
     };
     //setTimeout(Move,10);

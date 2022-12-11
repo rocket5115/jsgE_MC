@@ -7,9 +7,13 @@ class ChunkGenerator {
         this.xchunks = [];
         this.ychunks = [];
         this.chunks = [];
+        this.loadedchunks=[];
         this.p=this.map.size.h;
         this.range=3;
         this.reference={x1:0,x2:0+this.range,y1:0,y2:0+this.range};
+    };
+    get scene() {
+        return this.map;
     };
     DivChunks(x,p,y,func) {
         let fl = Math.floor(x/p);
@@ -45,6 +49,7 @@ class ChunkGenerator {
             for(let i=chunk.s;i<=chunk.e;i++){
                 GeneratedChunks[i]=[];
                 GeneratedChunksImages[i]=[];
+                this.loadedchunks[i]=[];
             };
             for(let i=0;i<this.xchunks.length;i++){
                 this.chunks[k][i]=this.xchunks[i];
@@ -52,6 +57,7 @@ class ChunkGenerator {
                     for(let j=this.xchunks[i].s;j<=this.xchunks[i].e;j++){
                         gen[j]=false;
                         GeneratedChunksImages[key][j]=false;
+                        this.loadedchunks[key][j]=false;
                     };
                 });
             };
@@ -93,15 +99,15 @@ class ChunkGenerator {
     };
     SetReferencePoint(x,y) {
         x=Math.floor(x/this.p);
-        y=Math.floor(y/this.p)+1;
+        y=Math.floor(y/this.p);
         this.reference={x1:x-this.range>-1?x-this.range:0,x2:x+this.range<GeneratedChunks[0].length?x+this.range:GeneratedChunks[0].length-1,y1:y-this.range>-1?y-this.range:0,y2:y+this.range<GeneratedChunks.length?y+this.range:GeneratedChunks.length-1};
     };
     get GetClosestObjects() {
         let retval = [];
         let i=0;
-        GeneratedChunks.forEach(grid=>{
+        GeneratedChunks.forEach((grid,k)=>{
             if(i<this.reference.y1||i>this.reference.y2){i++;return;};
-            for(let j=this.reference.x1;j<this.reference.x2;j++){
+            for(let j=this.reference.x1;j<=this.reference.x2;j++){
                 if(grid[j]!=false&&typeof(grid[j])=='string'){retval[grid[j]]=true;};
             };
             i++;
@@ -111,18 +117,19 @@ class ChunkGenerator {
     LoadNextChunk(x,y) {
         if(!this.chunks[y]){
             if(!this.chunks[y-1]){
-                return;
+                y++;
             } else {
                 y--;
             };
         };
-        if(!this.chunks[y][x]){
+        if(!this.chunks[y]||!this.chunks[y][x]||this.loadedchunks[y][x]){
             return;
         };
+        this.loadedchunks[y][x]=true;
         for(let yx=this.chunks[y].s;yx<=this.chunks[y].e;yx++){
             for(let i=this.chunks[y][x].s;i<=this.chunks[y][x].e;i++){
                 if(GeneratedChunks[yx][i].image){
-                    GeneratedChunks[yx][i]=this.map.CreateObject(i*this.p,yx*this.p,this.p,this.p);
+                    GeneratedChunks[yx][i]=this.map.CreateObject(i*this.p,(yx+1)*this.p,this.p,this.p);
                     this.map.object.SetImage(GeneratedChunks[yx][i],GeneratedChunksImages[yx][i].image);
                 };
             };
@@ -136,9 +143,10 @@ class ChunkGenerator {
                 y--;
             };
         };
-        if(!this.chunks[y][x]){
+        if(!this.chunks[y][x]||!this.loadedchunks[y][x]){
             return;
         };
+        this.loadedchunks[y][x]=false;
         for(let yx=this.chunks[y].s;yx<=this.chunks[y].e;yx++){
             for(let i=this.chunks[y][x].s;i<=this.chunks[y][x].e;i++){
                 if(typeof(GeneratedChunks[yx][i])=='string'&&GeneratedChunks[yx][i]){
