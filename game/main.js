@@ -29,8 +29,8 @@ generator.CreateWorld({
                 let stn=YFuncArgument(40,{success:'bedrock',failure:'stone'});
                 if(stn=='bedrock')return stn;
                 let rng=YFuncArgument(7,{success:'diamondore',failure:'stone'});
-                if(rng=='stone')rng=YFuncArgument(10,{success:'goldore',failure:'stone'});
-                if(rng=='stone')rng=YFuncArgument(20,{success:'ironore',failure:'stone'});
+                if(rng=='stone')rng=YFuncArgument(8,{success:'goldore',failure:'stone'});
+                if(rng=='stone')rng=YFuncArgument(15,{success:'ironore',failure:'stone'});
                 return rng;
             }(),
             await:true}
@@ -39,8 +39,8 @@ generator.CreateWorld({
             image:function(){
                 let stn = YFuncArgument(10,{success:'diamondore',failure:'stone'});
                 if(stn=='diamonore')return stn;
-                let rng=YFuncArgument(15,{success:'ironore',failure:'stone'});
-                if(rng=='stone')rng=YFuncArgument(12,{success:'goldore',failure:'stone'});
+                let rng=YFuncArgument(11,{success:'ironore',failure:'stone'});
+                if(rng=='stone')rng=YFuncArgument(6,{success:'goldore',failure:'stone'});
                 return rng;
             }(),
             await:true}
@@ -51,6 +51,15 @@ generator.CreateWorld({
                 if(stn=='diamonore')return stn;
                 let rng=YFuncArgument(5,{success:'ironore',failure:'stone'});
                 if(rng=='stone')rng=YFuncArgument(3,{success:'goldore',failure:'stone'});
+                return rng;
+            }(),
+            await:true}
+        },
+        ()=>{return {
+            image:function(){
+                let stn = YFuncArgument(2,{success:'diamondore',failure:'stone'});
+                if(stn=='diamonore')return stn;
+                let rng=YFuncArgument(2,{success:'ironore',failure:'stone'});
                 return rng;
             }(),
             await:true}
