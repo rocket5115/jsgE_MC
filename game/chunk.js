@@ -69,8 +69,7 @@ class ChunkGenerator {
         this.DivChunks(this.map.size.x/this.map.size.h,s||6,this.map.size.y/this.map.size.h,func);        
     };
     Generator(func) {
-        let fill = 1;
-        for(let i=this.chunks.length-1;i>=this.chunks.length-fill;i--){
+        for(let i=this.chunks.length-1;i>=0;i--){
             let y=this.chunks[i].s
             let loop = function(y,chunk,map,p) {
                 for(let key in chunk){

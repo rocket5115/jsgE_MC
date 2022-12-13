@@ -1,4 +1,4 @@
-var scene = new SceneCreator(((Math.floor(1920/64)*64)+64)*4, ((Math.floor(1080/64)*64)+64)*2, 64);
+var scene = new SceneCreator(((Math.floor(1920/64)*64)+64)*4, ((Math.floor(1080/64)*64)+64)*4, 64);
 let background = scene.CreateScene();
 document.getElementById('SceneElement'+background).style.backgroundColor = 'transparent';
 let sky = scene.CreateObject(0,0,scene.size.x,scene.size.y);
@@ -13,12 +13,27 @@ const RandomNumber = (min,max) => {
 };
 var generator = new WorldGenerator(new ChunkGenerator(scene));
 const YFuncArgument = (rng,res) => {
+    if(rng<=0)return res.failure;
     if(RandomNumber(0,200)<rng) {
         return res.success;
     } else {
         return res.failure||'stone';
     };
 };
+const ConstYFunc = (chance,start) => {
+    let startchance = start||200;
+    return function() {
+        let rng=YFuncArgument((startchance-(startchance-chance))-3,{success:'ironore',failure:'stone'});
+        if(rng=='stone')rng=YFuncArgument((startchance-(startchance-chance))-6,{success:'goldore',failure:'stone'});
+        if(rng=='stone')rng=YFuncArgument((startchance-(startchance-chance)),{success:'coalore',failure:'stone'});
+        return {image:rng,await:true};
+    };
+};
+const DivideChunksIntoBioms = (chunks) => { //Divide Chunks int bioms for Creating World
+    chunks[0]='lowland';
+    chunks[chunks.length-1]='lowland';
+};
+
 generator.CreateWorld({
     bottom: {y:ymax,ymax:ymax,image:'bedrock',await:true},
     phase: [
@@ -63,7 +78,20 @@ generator.CreateWorld({
                 return rng;
             }(),
             await:true}
-        }
+        },
+        ConstYFunc(10),
+        ConstYFunc(3),
+        ConstYFunc(0),
+        ConstYFunc(2),
+        ConstYFunc(1),
+        ConstYFunc(4),
+        ConstYFunc(8),
+        ConstYFunc(0),
+        ConstYFunc(5),
+        ConstYFunc(2),
+        ConstYFunc(3),
+        ConstYFunc(6),
+        ConstYFunc(8),
     ]
 });
 
@@ -131,37 +159,55 @@ setInterval(()=>{
     generator.LoadNextChunk(x,y);
     generator.LoadNextChunk(x,y-1);
     generator.LoadNextChunk(x,y+1);
+    generator.LoadNextChunk(x,y-2);
+    generator.LoadNextChunk(x,y+2);
 
     generator.LoadNextChunk(x-1,y);
     generator.LoadNextChunk(x-1,y-1);
     generator.LoadNextChunk(x-1,y+1);
+    generator.LoadNextChunk(x-1,y-2);
+    generator.LoadNextChunk(x-1,y+2);
 
     generator.LoadNextChunk(x+1,y);
     generator.LoadNextChunk(x+1,y-1);
     generator.LoadNextChunk(x+1,y+1);
+    generator.LoadNextChunk(x+1,y-2);
+    generator.LoadNextChunk(x+1,y+2);
 
     generator.LoadNextChunk(x-2,y);
     generator.LoadNextChunk(x-2,y-1);
     generator.LoadNextChunk(x-2,y+1);
+    generator.LoadNextChunk(x-2,y-2);
+    generator.LoadNextChunk(x-2,y+2);
 
     generator.LoadNextChunk(x+2,y);
     generator.LoadNextChunk(x+2,y-1);
     generator.LoadNextChunk(x+2,y+1);
+    generator.LoadNextChunk(x+2,y-2);
+    generator.LoadNextChunk(x+2,y+2);
 
     generator.LoadNextChunk(x-3,y);
     generator.LoadNextChunk(x-3,y+1);
     generator.LoadNextChunk(x-3,y-1);
+    generator.LoadNextChunk(x-3,y+2);
+    generator.LoadNextChunk(x-3,y-2);
 
     generator.LoadNextChunk(x+3,y);
     generator.LoadNextChunk(x+3,y+1);
     generator.LoadNextChunk(x+3,y-1);
+    generator.LoadNextChunk(x+3,y+2);
+    generator.LoadNextChunk(x+3,y-2);
 
     generator.UnloadChunk(x-4,y);
     generator.UnloadChunk(x-4,y+1);
     generator.UnloadChunk(x-4,y-1);
+    generator.UnloadChunk(x-4,y+2);
+    generator.UnloadChunk(x-4,y-2);
     generator.UnloadChunk(x+4,y);
     generator.UnloadChunk(x+4,y+1);
     generator.UnloadChunk(x+4,y-1);
+    generator.UnloadChunk(x+4,y+2);
+    generator.UnloadChunk(x+4,y-2);
 },50);
 delete(stdoc);
 var PhysicsObjects = [];
