@@ -3,6 +3,6 @@ html>* {
     overflow: hidden;
 }
 
-container>* {
+container>container>* {
     background-color: black;
 }

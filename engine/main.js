@@ -1,6 +1,5 @@
 const Scenes = {};
 const SceneObjects = {}; // Used as physics reference
-var maxwidth = 0;
 
 class SceneCreator {
     constructor(x,y,h) {
@@ -12,9 +11,6 @@ class SceneCreator {
             this.h = h;
         };
         this.lobj = new MiscObject(this.id);
-        if(maxwidth<this.x){
-            maxwidth=this.x;
-        };
     };
     get object() {
         return this.lobj;
@@ -98,6 +94,7 @@ class Physics {
         let statics = [];
         let dynamics = [];
         for(let id in obj) {
+            if(!SceneObjects[this.id][id])continue;
             if(SceneObjects[this.id][id].static===true&&!SceneObjects[this.id][id].disabled){dynamics[dynamics.length]=SceneObjects[this.id][id];continue;};
             statics[statics.length]=SceneObjects[this.id][id];continue;
         };
@@ -181,6 +178,7 @@ class Movement {
     MoveLeft(obj,objs,num) {
         let statics = [];
         for(let id in objs) {
+            if(!SceneObjects[this.id][id])continue;
             if(SceneObjects[this.id][id].disabled)continue;
             statics[statics.length]=SceneObjects[this.id][id];
         };
@@ -223,6 +221,7 @@ class Movement {
     MoveRight(obj,objs,num) {
         let statics = [];
         for(let id in objs) {
+            if(!SceneObjects[this.id][id])continue;
             if(SceneObjects[this.id][id].disabled)continue;
             statics[statics.length]=SceneObjects[this.id][id];
         };
@@ -302,14 +301,9 @@ class MiscObject {
     };
 };
 
-let firsttime = true;
-
 const FocusOnElement = () =>{
     if(FocusOn[0]!=undefined){
         let elementRect=FocusOn[0].getBoundingClientRect();
-        if(maxwidth-Number(FocusOn[0].style.left.replace('px',''))<100){
-            return;
-        };
         window.scrollTo((elementRect.left + window.pageXOffset) - (1920/2), (elementRect.top + window.pageYOffset) - (1080 / 4));
     };
 };
