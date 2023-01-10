@@ -2,10 +2,9 @@ var scene = new SceneCreator(((Math.floor(1920/64)*64)+64)*4, ((Math.floor(1080/
 let background = scene.CreateScene();
 document.getElementById('SceneElement'+background).style.backgroundColor = 'transparent';
 let sky = scene.CreateObject(0,0,scene.size.x,scene.size.y);
+var bac = document.getElementById(sky);
 scene.object.DisablePhysics(sky);
 scene.object.SetImage(sky, 'sky');
-var inventory = new Inventory(scene);
-inventory.PreparePersonalInventory()
 
 var ymax = Math.floor(scene.size.y/scene.size.h);
 yrng = [80,50,40,10]
@@ -195,22 +194,6 @@ setTimeout(PhysicsFunc, 10);
 let l = false
 let r = false
 
-window.addEventListener('keydown', function(e) {
-    if(e.code=='Space'){
-        e.preventDefault();
-        let init = SceneObjects[background][steve].walls[3].y1
-        setTimeout(()=>{
-            if(init==SceneObjects[background][steve].walls[3].y1){
-                SceneObjects[background][steve].gravity = -13;
-            };
-        },20);
-    } else if(e.code=='KeyA') {
-        l=true;
-    } else if(e.code=='KeyD'){
-        r=true;
-    };
-});
-
 let lastinv = 0;
 
 $(window).bind('mousewheel', function(event) {
@@ -328,6 +311,81 @@ setInterval(GF,20)
 
 scene.object.FocusOnElement(steve);
 
-$('body').bind('contextmenu', function() {
+var inventory = new Inventory(scene);
+inventory.PreparePersonalInventory();
+
+window.addEventListener('keydown', function(e) {
+    switch(e.code) {
+        case 'Space':
+            e.preventDefault();
+            let init = SceneObjects[background][steve].walls[3].y1
+            setTimeout(()=>{
+                if(init==SceneObjects[background][steve].walls[3].y1){
+                    SceneObjects[background][steve].gravity = -13;
+                };
+            },20);
+            break;
+        case 'KeyA':
+            l=true;
+            break;
+        case 'KeyD':
+            r=true;
+            break;
+        case 'Digit1':
+            inventory.MoveTo(0);
+            break;
+        case 'Digit2':
+            inventory.MoveTo(1);
+            break;
+        case 'Digit3':
+            inventory.MoveTo(2);
+            break;
+        case 'Digit4':
+            inventory.MoveTo(3);
+            break;
+        case 'Digit5':
+            inventory.MoveTo(4);
+            break;
+        case 'Digit6':
+            inventory.MoveTo(5);
+            break;
+        case 'Digit7':
+            inventory.MoveTo(6);
+            break;
+        case 'Digit8':
+            inventory.MoveTo(7);
+            break;
+        case 'Digit9':
+            inventory.MoveTo(8);
+            break;
+    };
+});
+
+$('body').bind('contextmenu', function(e) {
+    let rect = bac.getBoundingClientRect();
+    let x = Math.floor((e.clientX-rect.left)/scene.size.h);
+    let y = Math.floor((e.clientY-rect.top)/scene.size.h)-1;
+    let space = inventory.GetSelectedSpace;
+    let item = inventory.GetSelectedItem;
+    if(generator.IsPositionFree(x,y)&&item&&item.num>0){
+        let obj = scene.CreateObject(x*64,(y+1)*64,64,64);
+        scene.object.SetImage(obj,item.item);
+        inventory.RemoveItemFromSpace(space,1);
+        generator.AddObjectOnPosition(obj,x,y);
+    };
     return false;
 });
+
+const unbreakable = {bedrock:true};
+
+$('body').bind('click', function(e) {
+    let rect = bac.getBoundingClientRect();
+    let x = Math.floor((e.clientX-rect.left)/scene.size.h);
+    let y = Math.floor((e.clientY-rect.top)/scene.size.h)-1;
+    if(!generator.IsPositionFree(x,y)&&!unbreakable[scene.object.GetImage(generator.GetObjectOnPosition(x,y))]){
+        let obj = generator.GetObjectOnPosition(x,y);
+        inventory.AddItemToNextSpace(scene.object.GetImage(obj),1);
+        generator.RemoveObjectOnPosition(obj,x,y);
+    };
+    return false;
+})

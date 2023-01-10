@@ -155,4 +155,19 @@ class ChunkGenerator {
             };
         };
     };
+    AddObjectOnPosition(id,x,y) {
+        GeneratedChunks[y][x]=id;
+        GeneratedChunksImages[y][x]=this.map.object.GetImage(id);
+    };
+    RemoveObjectOnPosition(id,x,y) {
+        GeneratedChunks[y][x]=undefined;
+        GeneratedChunksImages[y][x]=undefined;
+        this.map.DeleteObject(id);
+    };
+    IsPositionFree(x,y) {
+        return (GeneratedChunks[y][x]==false||GeneratedChunks[y][x]==undefined);
+    };
+    GetObjectOnPosition(x,y) {
+        return GeneratedChunks[y][x];
+    };
 };
