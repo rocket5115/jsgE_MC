@@ -156,10 +156,8 @@ class ChunkGenerator {
         };
     };
     AddObjectOnPosition(id,x,y) {
-        console.log('Added '+id+' To '+x+' '+y);
         GeneratedChunks[y][x]=id;
         GeneratedChunksImages[y][x]=this.map.object.GetImage(id);
-        console.log(GeneratedChunks[y][x])
     };
     RemoveObjectOnPosition(id,x,y) {
         GeneratedChunks[y][x]=undefined;

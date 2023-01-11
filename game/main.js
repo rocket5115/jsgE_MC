@@ -371,14 +371,26 @@ $('body').bind('contextmenu', function(e) {
     let rect = bac.getBoundingClientRect();
     let x = Math.floor((e.clientX-rect.left)/scene.size.h);
     let y = Math.floor((e.clientY-rect.top)/scene.size.h)-1;
+    let x2 = Math.floor((SceneObjects[background][steve].walls[0].x1+16)/64);
+    let y2 = Math.floor((SceneObjects[background][steve].walls[0].y1+16)/64);
+    if((x+3)-x2<0||(x-3)-x2>0)return false;
+    if((y+2)-y2<0||(y-2)-y2>0)return false;
     let space = inventory.GetSelectedSpace;
     let item = inventory.GetSelectedItem;
     if(generator.IsPositionFree(x,y)&&item&&item.num>0){
-        let obj = scene.CreateObject(x*64,(y+1)*64,64,64);
-        scene.object.SetImage(obj,item.item);
-        inventory.RemoveItemFromSpace(space,1);
-        generator.AddObjectOnPosition(obj,x,y);
-        objId=obj;
+        let canProceed=true;
+        Raycast(SceneObjects[background][steve].walls[0].x1+16,SceneObjects[background][steve].walls[0].y1+16,x*64,y*64,(x1,y1)=>{
+            let x2 = Math.floor(((SceneObjects[background][steve].walls[0].x1+16)+x1)/64)-2;
+            let y2 = Math.floor(((SceneObjects[background][steve].walls[0].y1+16)+y1)/64)-1;
+            if(!generator.IsPositionFree(x2,y2)&&x1!=x&&y1!=y){canProceed=false;return;};
+        })
+        if(canProceed){
+            let obj = scene.CreateObject(x*64,(y+1)*64,64,64);
+            scene.object.SetImage(obj,item.item);
+            inventory.RemoveItemFromSpace(space,1);
+            generator.AddObjectOnPosition(obj,x,y);
+            objId=obj;
+        };
     };
     return false;
 });
@@ -389,10 +401,22 @@ $('body').bind('click', function(e) {
     let rect = bac.getBoundingClientRect();
     let x = Math.floor((e.clientX-rect.left)/scene.size.h);
     let y = Math.floor((e.clientY-rect.top)/scene.size.h)-1;
+    let x2 = Math.floor((SceneObjects[background][steve].walls[0].x1+16)/64);
+    let y2 = Math.floor((SceneObjects[background][steve].walls[0].y1+16)/64);
+    if((x+3)-x2<0||(x-3)-x2>0)return false;
+    if((y+2)-y2<0||(y-2)-y2>0)return false;
     if(!generator.IsPositionFree(x,y)&&!unbreakable[scene.object.GetImage(generator.GetObjectOnPosition(x,y))]){
-        let obj = generator.GetObjectOnPosition(x,y);
-        inventory.AddItemToNextSpace(scene.object.GetImage(obj),1);
-        generator.RemoveObjectOnPosition(obj,x,y);
+        let canProceed=true;
+        Raycast(SceneObjects[background][steve].walls[0].x1+16,SceneObjects[background][steve].walls[0].y1+16,x*64,y*64,(x1,y1)=>{
+            let x2 = Math.floor(((SceneObjects[background][steve].walls[0].x1+16)+x1)/64)-2;
+            let y2 = Math.floor(((SceneObjects[background][steve].walls[0].y1+16)+y1)/64)-1;
+            if(!generator.IsPositionFree(x2,y2)&&x1!=x&&y1!=y){canProceed=false;return;};
+        })
+        if(canProceed){
+            let obj = generator.GetObjectOnPosition(x,y);
+            inventory.AddItemToNextSpace(scene.object.GetImage(obj),1);
+            generator.RemoveObjectOnPosition(obj,x,y);
+        };
     };
     return false;
 })
