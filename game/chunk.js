@@ -9,7 +9,7 @@ class ChunkGenerator {
         this.chunks = [];
         this.loadedchunks=[];
         this.p=this.map.size.h;
-        this.range=3;
+        this.range=6;
         this.reference={x1:0,x2:0+this.range,y1:0,y2:0+this.range};
     };
     get scene() {
@@ -156,8 +156,10 @@ class ChunkGenerator {
         };
     };
     AddObjectOnPosition(id,x,y) {
+        console.log('Added '+id+' To '+x+' '+y);
         GeneratedChunks[y][x]=id;
         GeneratedChunksImages[y][x]=this.map.object.GetImage(id);
+        console.log(GeneratedChunks[y][x])
     };
     RemoveObjectOnPosition(id,x,y) {
         GeneratedChunks[y][x]=undefined;

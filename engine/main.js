@@ -83,14 +83,14 @@ const GetDirections = (pw,cw) => {
     let left = (pw[3].x1>=cw[1].x1);
     let down = (pw[0].y1>=cw[2].y1);
     let top = (pw[2].y1<=cw[0].y1);
-    return {left:left,right:right,top:top,down:down,inside:left&&right,between:!left&&!right,ldif:(left&&pw[3].x1-cw[1].x1)||0,rdif:(right&&cw[3].x1-pw[1].x1)||0,tdif:(top&&cw[0].y1-pw[2].y1)||0,ddif:(down&&pw[0].y1-cw[2].y1)};
+    return {left:left,right:right,top:top,down:down,inside:left&&right,between:!left&&!right,ldif:(left&&pw[3].x1-cw[1].x1)||0,rdif:(right&&cw[3].x1-pw[1].x1)||0,tdif:(top&&cw[0].y1-pw[2].y1)||0,ddif:(down&&pw[0].y1-cw[2].y1)||0};
 };
 
 class Physics {
     constructor(id) {
         this.id = id;
     };
-    Next(obj) {
+    Next(obj,chk) {
         let statics = [];
         let dynamics = [];
         for(let id in obj) {

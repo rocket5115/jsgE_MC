@@ -50,6 +50,8 @@ class Inventory {
                 if(this.personalInventory[space].num<=0) {
                     document.documentElement.style.setProperty('--inv-'+space, "");
                     document.getElementById('Inv'+space).style.backgroundImage = ``;
+                } else {
+                    document.documentElement.style.setProperty('--inv-'+space, `"${this.personalInventory[space].num}"`);
                 };
             };
         };

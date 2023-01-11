@@ -169,6 +169,8 @@ PhysicsObjects[borders[2]]=true;
 PhysicsObjects[borders[3]]=true;
 PhysicsObjects[steve]=true;
 
+var objId = "";
+
 const ClosestObjects = () => {
     PhysicsObjects = {}
     PhysicsObjects[borders[0]]=true;
@@ -186,7 +188,7 @@ setTimeout(ClosestObjects, 50);
 
 var physics = new Physics(background);
 const PhysicsFunc = () => {
-    physics.Next(PhysicsObjects);
+    physics.Next(PhysicsObjects,objId);
     setTimeout(PhysicsFunc, 10);
 };
 setTimeout(PhysicsFunc, 10);
@@ -246,6 +248,7 @@ const MoveLegsNormal = () => {
 
 var mov = new Movement(background);
 let lastmov = 1;
+let lm = 1;
 
 const angle = (cx, cy, ex, ey) => {
     return Math.atan2(ey-cy,ex-cx)*180/Math.PI;
@@ -258,11 +261,11 @@ document.addEventListener('mousemove', (e)=>{
     let x = (op.left + sh.clientWidth / 2);
     let y = (op.top + sh.clientHeight / 2);
     let rect = angle(e.clientX, e.clientY, x, y)
-    if(lastmov==1){
+    if(lastmov==1||lm==1){
         if(rect<40&&rect>-20){
             document.documentElement.style.setProperty('--roth', rect+'deg');
         };
-    } else if (lastmov==2) {
+    } else if (lastmov==2||lm==2) {
         if(rect<-170||(rect<180&&rect>150)){
             document.documentElement.style.setProperty('--roth', rect+'deg');
         };
@@ -296,18 +299,21 @@ const Move = () => {
         MoveLegs();
     } else if(lastmov!=3) {
         MoveLegsNormal();
+        lm=lastmov;
         lastmov=3;
     };
     setTimeout(Move,10);
 };
 setTimeout(Move,10);
 
-const GF = () =>{
-    if(SceneObjects[background][steve].gravity<9){
-        SceneObjects[background][steve].gravity++;
+setTimeout(()=>{
+    const GF = () =>{
+        if(SceneObjects[background][steve].gravity<9){
+            SceneObjects[background][steve].gravity++;
+        };
     };
-};
-setInterval(GF,20)
+    setInterval(GF,20)
+},0)
 
 scene.object.FocusOnElement(steve);
 
@@ -372,6 +378,7 @@ $('body').bind('contextmenu', function(e) {
         scene.object.SetImage(obj,item.item);
         inventory.RemoveItemFromSpace(space,1);
         generator.AddObjectOnPosition(obj,x,y);
+        objId=obj;
     };
     return false;
 });
