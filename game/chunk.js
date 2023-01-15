@@ -165,9 +165,12 @@ class ChunkGenerator {
         this.map.DeleteObject(id);
     };
     IsPositionFree(x,y) {
-        return (GeneratedChunks[y][x]==false||GeneratedChunks[y][x]==undefined);
+        return (!GeneratedChunks[y][x]);
     };
     GetObjectOnPosition(x,y) {
         return GeneratedChunks[y][x];
+    };
+    IsAdjacentToAll(x,y) {
+        return (GeneratedChunks[y][x-1]&&GeneratedChunks[y][x+1]&&GeneratedChunks[y-1][x]&&GeneratedChunks[y+1][x])
     };
 };
